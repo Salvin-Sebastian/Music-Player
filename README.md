@@ -1,13 +1,13 @@
-# 🎵 Spotify Clone Web Player
+# 🎵 Lottafiy Clone Web Player
 
-A fully responsive, vanilla JavaScript Spotify clone that fetches real music data dynamically using the iTunes Search API.
+A fully responsive, vanilla JavaScript Lottafiy clone that fetches real music data dynamically using the iTunes Search API.
 
-![Spotify Clone Preview](https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1200&auto=format&fit=crop) *(Placeholder for app screenshot)*
+![Lottafiy Clone Preview](https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1200&auto=format&fit=crop) *(Placeholder for app screenshot)*
 
 ## ✨ Features
 - **Real Music Search:** Search for any artist, song, or album and get real results powered by the Apple iTunes API.
 - **Audio Playback:** Click any track to immediately play a 30-second high-quality audio preview.
-- **Spotify Aesthetics:** A beautiful, dark-themed UI matching Spotify's 3-pane layout (Sidebar, Main View, Bottom Player).
+- **Lottafiy Aesthetics:** A beautiful, dark-themed UI matching Lottafiy's 3-pane layout (Sidebar, Main View, Bottom Player).
 - **Dynamic Queue:** Search results automatically act as your playlist, allowing you to seamlessly cycle through tracks using the Next/Previous buttons.
 - **Interactive Player:** Functional progress bar (click to seek) and volume controls.
 - **Zero Dependencies:** Built entirely with Vanilla HTML, CSS, and JavaScript. No frameworks or build tools required.
