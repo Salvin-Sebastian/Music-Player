@@ -75,7 +75,8 @@ async function searchiTunes(query) {
     resultsTitle.innerText = `Search results for "${query}"`;
 
     try {
-        const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=50`);
+        const targetUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=50`;
+        const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
         const data = await response.json();
         
         currentQueue = data.results
