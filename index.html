@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Music Player</title>
+    <meta name="description" content="A beautiful, glassmorphic music player application.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-wrapper">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="player-container">
+        <!-- Audio Element (Hidden) -->
+        <audio id="audio"></audio>
+
+        <!-- Header -->
+        <header class="player-header">
+            <button class="icon-btn" aria-label="Menu" id="menu-btn">
+                <i class="ph ph-list"></i>
+            </button>
+            <p class="now-playing-text">Now Playing</p>
+            <button class="icon-btn" aria-label="Playlist" id="playlist-btn">
+                <i class="ph ph-music-notes-simple"></i>
+            </button>
+        </header>
+
+        <!-- Album Art -->
+        <div class="art-container">
+            <div class="art-wrapper" id="art-wrapper">
+                <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=600&auto=format&fit=crop" alt="Album Art" id="cover-img">
+                <div class="art-overlay"></div>
+            </div>
+        </div>
+
+        <!-- Track Info -->
+        <div class="track-info">
+            <h1 id="title" class="title">Loading...</h1>
+            <h2 id="artist" class="artist">Please wait</h2>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-section">
+            <div class="time-display">
+                <span id="current-time">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar">
+                    <div class="progress-thumb"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="icon-btn control-btn" id="prev" aria-label="Previous Track">
+                <i class="ph-fill ph-skip-back"></i>
+            </button>
+            <button class="icon-btn play-btn" id="play" aria-label="Play or Pause">
+                <i class="ph-fill ph-play" id="play-icon"></i>
+            </button>
+            <button class="icon-btn control-btn" id="next" aria-label="Next Track">
+                <i class="ph-fill ph-skip-forward"></i>
+            </button>
+        </div>
+
+        <!-- Volume -->
+        <div class="volume-section">
+            <i class="ph ph-speaker-low" id="volume-icon"></i>
+            <div class="volume-container">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+                <div class="volume-progress" id="volume-progress"></div>
+            </div>
+            <i class="ph ph-speaker-high"></i>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
