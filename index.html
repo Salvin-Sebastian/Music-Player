@@ -26,9 +26,13 @@
                     <i class="ph-fill ph-house"></i>
                     <span>Home</span>
                 </a>
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" id="nav-search">
                     <i class="ph ph-magnifying-glass"></i>
                     <span>Search</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-radio">
+                    <i class="ph ph-radio"></i>
+                    <span>Live Radio</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i class="ph ph-books"></i>
@@ -93,7 +97,7 @@
                 <button class="icon-btn" id="next" aria-label="Next"><i class="ph-fill ph-skip-forward"></i></button>
                 <button class="icon-btn" aria-label="Repeat"><i class="ph ph-repeat"></i></button>
             </div>
-            <div class="progress-section">
+            <div class="progress-section" id="progress-section">
                 <span id="current-time" class="time-text">0:00</span>
                 <div class="progress-container" id="progress-container">
                     <div class="progress-bar" id="progress-bar">
@@ -102,6 +106,9 @@
                     </div>
                 </div>
                 <span id="duration" class="time-text">0:30</span>
+            </div>
+            <div class="live-indicator hidden" id="live-indicator">
+                <div class="live-dot"></div> LIVE RADIO
             </div>
         </div>
 
