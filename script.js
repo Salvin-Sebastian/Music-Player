@@ -1,159 +1,225 @@
+// --- DOM Elements ---
+const searchInput = document.getElementById('search-input');
+const tracksContainer = document.getElementById('tracks-container');
+const resultsTitle = document.getElementById('results-title');
+
+// Player Elements
 const audio = document.getElementById('audio');
 const playBtn = document.getElementById('play');
+const playIcon = document.getElementById('play-icon');
 const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
-const title = document.getElementById('title');
-const artist = document.getElementById('artist');
-const coverImg = document.getElementById('cover-img');
+const playerArt = document.getElementById('player-art');
+const playerTitle = document.getElementById('player-title');
+const playerArtist = document.getElementById('player-artist');
 const currentTimeEl = document.getElementById('current-time');
 const durationEl = document.getElementById('duration');
 const progressContainer = document.getElementById('progress-container');
-const progressBar = document.getElementById('progress-bar');
+const progressFill = document.getElementById('progress-fill');
+const progressThumb = document.getElementById('progress-thumb');
 const volumeSlider = document.getElementById('volume-slider');
 const volumeProgress = document.getElementById('volume-progress');
-const artWrapper = document.getElementById('art-wrapper');
-const playIcon = document.getElementById('play-icon');
 
-// Placeholder Songs Data
-const songs = [
-    {
-        title: "Chill Lofi Vibes",
-        artist: "SoundHelix",
-        audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        coverSrc: "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92b?q=80&w=600&auto=format&fit=crop"
-    },
-    {
-        title: "Neon Dreams",
-        artist: "Synthwave Pro",
-        audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-        coverSrc: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=600&auto=format&fit=crop"
-    },
-    {
-        title: "Acoustic Journey",
-        artist: "The Wanderers",
-        audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-        coverSrc: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600&auto=format&fit=crop"
-    }
-];
-
-let songIndex = 0;
+// --- State ---
+let currentQueue = [];
+let currentIndex = -1;
 let isPlaying = false;
 
-// Initialize Player
+// --- Initialize ---
 function init() {
-    loadSong(songs[songIndex]);
-    updateVolumeProgress();
+    // Default search
+    searchiTunes('Top Hits');
+    
+    // Set initial volume
+    updateVolume();
 }
 
-// Load Song
-function loadSong(song) {
-    title.innerText = song.title;
-    artist.innerText = song.artist;
-    audio.src = song.audioSrc;
-    coverImg.src = song.coverSrc;
+// --- API Search ---
+async function searchiTunes(query) {
+    if (!query.trim()) return;
     
-    // When metadata loads, update duration
-    audio.addEventListener('loadedmetadata', () => {
-        durationEl.innerText = formatTime(audio.duration);
+    tracksContainer.innerHTML = '<div class="loading-state">Loading tracks...</div>';
+    resultsTitle.innerText = `Search results for "${query}"`;
+
+    try {
+        const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=50`);
+        const data = await response.json();
+        
+        currentQueue = data.results.filter(track => track.previewUrl); // Ensure it has a preview
+        renderTracks(currentQueue);
+    } catch (error) {
+        console.error('Error fetching from iTunes:', error);
+        tracksContainer.innerHTML = '<div class="loading-state">Error loading tracks. Please try again.</div>';
+    }
+}
+
+// --- Render Tracks ---
+function renderTracks(tracks) {
+    tracksContainer.innerHTML = '';
+    
+    if (tracks.length === 0) {
+        tracksContainer.innerHTML = '<div class="loading-state">No tracks found.</div>';
+        return;
+    }
+
+    tracks.forEach((track, index) => {
+        const trackEl = document.createElement('div');
+        trackEl.className = 'track-item';
+        trackEl.dataset.index = index;
+        
+        // High-res image hack for iTunes API
+        const imgUrl = track.artworkUrl100 ? track.artworkUrl100.replace('100x100bb', '300x300bb') : '';
+        const duration = formatTime(track.trackTimeMillis / 1000);
+
+        trackEl.innerHTML = `
+            <div class="track-index">${index + 1}</div>
+            <div class="track-info-col">
+                <img src="${imgUrl}" alt="Album Art">
+                <div class="track-details">
+                    <div class="track-name">${track.trackName}</div>
+                    <div class="track-artist">${track.artistName}</div>
+                </div>
+            </div>
+            <div class="track-album">${track.collectionName || 'Single'}</div>
+            <div class="track-duration">${duration}</div>
+        `;
+
+        trackEl.addEventListener('click', () => {
+            currentIndex = index;
+            loadTrack(currentIndex);
+            playTrack();
+        });
+
+        tracksContainer.appendChild(trackEl);
     });
 }
 
-// Play Song
-function playSong() {
+// --- Player Logic ---
+function loadTrack(index) {
+    const track = currentQueue[index];
+    if (!track) return;
+
+    // High-res image
+    const imgUrl = track.artworkUrl100 ? track.artworkUrl100.replace('100x100bb', '600x600bb') : '';
+
+    audio.src = track.previewUrl;
+    playerArt.src = imgUrl;
+    playerArt.classList.remove('hidden');
+    playerTitle.innerText = track.trackName;
+    playerArtist.innerText = track.artistName;
+
+    // Highlight active track in list
+    document.querySelectorAll('.track-item').forEach(el => el.classList.remove('playing'));
+    const activeTrack = document.querySelector(`.track-item[data-index="${index}"]`);
+    if (activeTrack) {
+        activeTrack.classList.add('playing');
+    }
+}
+
+function playTrack() {
+    if (currentIndex === -1) return; // No track loaded
     isPlaying = true;
-    playIcon.classList.remove('ph-play');
-    playIcon.classList.add('ph-pause');
-    artWrapper.classList.add('playing');
-    artWrapper.classList.remove('paused');
+    playIcon.classList.replace('ph-play', 'ph-pause');
     audio.play();
 }
 
-// Pause Song
-function pauseSong() {
+function pauseTrack() {
     isPlaying = false;
-    playIcon.classList.remove('ph-pause');
-    playIcon.classList.add('ph-play');
-    artWrapper.classList.add('paused');
+    playIcon.classList.replace('ph-pause', 'ph-play');
     audio.pause();
 }
 
-// Toggle Play/Pause
 function togglePlay() {
     if (isPlaying) {
-        pauseSong();
+        pauseTrack();
     } else {
-        playSong();
+        playTrack();
     }
 }
 
-// Previous Song
-function prevSong() {
-    songIndex--;
-    if (songIndex < 0) {
-        songIndex = songs.length - 1;
+function nextTrack() {
+    if (currentQueue.length === 0) return;
+    currentIndex++;
+    if (currentIndex >= currentQueue.length) {
+        currentIndex = 0; // Loop back to start
     }
-    loadSong(songs[songIndex]);
-    if (isPlaying) playSong();
+    loadTrack(currentIndex);
+    if (isPlaying) playTrack();
 }
 
-// Next Song
-function nextSong() {
-    songIndex++;
-    if (songIndex > songs.length - 1) {
-        songIndex = 0;
+function prevTrack() {
+    if (currentQueue.length === 0) return;
+    currentIndex--;
+    if (currentIndex < 0) {
+        currentIndex = currentQueue.length - 1;
     }
-    loadSong(songs[songIndex]);
-    if (isPlaying) playSong();
+    loadTrack(currentIndex);
+    if (isPlaying) playTrack();
 }
 
-// Update Progress Bar
+// --- Progress & Time ---
 function updateProgress(e) {
     const { duration, currentTime } = e.srcElement;
     
-    // Update progress bar width
-    const progressPercent = (currentTime / duration) * 100;
-    progressBar.style.width = `${progressPercent}%`;
+    // iTunes previews are 30s max, but we'll use actual duration if available
+    const dur = isNaN(duration) ? 30 : duration; 
+    
+    const progressPercent = (currentTime / dur) * 100;
+    progressFill.style.width = `${progressPercent}%`;
+    progressThumb.style.left = `${progressPercent}%`;
 
-    // Update current time display
     currentTimeEl.innerText = formatTime(currentTime);
+    if (!isNaN(duration)) {
+        durationEl.innerText = formatTime(duration);
+    }
 }
 
-// Set Progress from Click
 function setProgress(e) {
     const width = this.clientWidth;
     const clickX = e.offsetX;
     const duration = audio.duration;
 
-    audio.currentTime = (clickX / width) * duration;
+    if (!isNaN(duration)) {
+        audio.currentTime = (clickX / width) * duration;
+    }
 }
 
-// Format Time (seconds -> M:SS)
-function formatTime(time) {
-    if (isNaN(time)) return "0:00";
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+function formatTime(seconds) {
+    if (isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-// Update Volume
+// --- Volume ---
 function updateVolume() {
     audio.volume = volumeSlider.value;
-    updateVolumeProgress();
-}
-
-function updateVolumeProgress() {
     const value = volumeSlider.value * 100;
     volumeProgress.style.width = `${value}%`;
 }
 
-// Event Listeners
+// --- Event Listeners ---
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        searchiTunes(searchInput.value);
+    }
+});
+
 playBtn.addEventListener('click', togglePlay);
-prevBtn.addEventListener('click', prevSong);
-nextBtn.addEventListener('click', nextSong);
+nextBtn.addEventListener('click', nextTrack);
+prevBtn.addEventListener('click', prevTrack);
 audio.addEventListener('timeupdate', updateProgress);
-audio.addEventListener('ended', nextSong);
+audio.addEventListener('ended', nextTrack);
 progressContainer.addEventListener('click', setProgress);
 volumeSlider.addEventListener('input', updateVolume);
 
-// Initialize on load
+// Handle spacebar play/pause
+document.body.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && e.target !== searchInput) {
+        e.preventDefault();
+        togglePlay();
+    }
+});
+
+// Run Init
 init();

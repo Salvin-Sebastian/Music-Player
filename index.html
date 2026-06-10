@@ -3,87 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Music Player</title>
-    <meta name="description" content="A beautiful, glassmorphic music player application.">
+    <title>Spotify Clone</title>
+    <meta name="description" content="A Spotify clone using the iTunes Search API">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Circular+Std:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="background-wrapper">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="ph-fill ph-spotify-logo"></i>
+                <span>Spotify</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-item">
+                    <i class="ph-fill ph-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <span>Search</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="ph ph-books"></i>
+                    <span>Your Library</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-view">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-container">
+                    <i class="ph ph-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="What do you want to listen to?" value="Top Hits">
+                </div>
+                <div class="user-profile">
+                    <i class="ph-fill ph-user-circle"></i>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <h2 id="results-title">Search Results</h2>
+                
+                <!-- Track List Header -->
+                <div class="track-list-header">
+                    <div class="col-title"># Title</div>
+                    <div class="col-album">Album</div>
+                    <div class="col-time"><i class="ph ph-clock"></i></div>
+                </div>
+
+                <!-- Tracks Container -->
+                <div class="tracks-container" id="tracks-container">
+                    <!-- Dynamic Tracks injected here -->
+                    <div class="loading-state">Search for your favorite artists or songs...</div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <main class="player-container">
+    <!-- Bottom Player -->
+    <footer class="bottom-player">
         <!-- Audio Element (Hidden) -->
         <audio id="audio"></audio>
 
-        <!-- Header -->
-        <header class="player-header">
-            <button class="icon-btn" aria-label="Menu" id="menu-btn">
-                <i class="ph ph-list"></i>
-            </button>
-            <p class="now-playing-text">Now Playing</p>
-            <button class="icon-btn" aria-label="Playlist" id="playlist-btn">
-                <i class="ph ph-music-notes-simple"></i>
-            </button>
-        </header>
-
-        <!-- Album Art -->
-        <div class="art-container">
-            <div class="art-wrapper" id="art-wrapper">
-                <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=600&auto=format&fit=crop" alt="Album Art" id="cover-img">
-                <div class="art-overlay"></div>
+        <!-- Left: Track Info -->
+        <div class="player-left">
+            <img src="" alt="Album Art" id="player-art" class="hidden">
+            <div class="player-track-info">
+                <div id="player-title" class="player-title"></div>
+                <div id="player-artist" class="player-artist"></div>
             </div>
         </div>
 
-        <!-- Track Info -->
-        <div class="track-info">
-            <h1 id="title" class="title">Loading...</h1>
-            <h2 id="artist" class="artist">Please wait</h2>
-        </div>
-
-        <!-- Progress -->
-        <div class="progress-section">
-            <div class="time-display">
-                <span id="current-time">0:00</span>
-                <span id="duration">0:00</span>
+        <!-- Center: Controls & Progress -->
+        <div class="player-center">
+            <div class="player-controls">
+                <button class="icon-btn" aria-label="Shuffle"><i class="ph ph-shuffle"></i></button>
+                <button class="icon-btn" id="prev" aria-label="Previous"><i class="ph-fill ph-skip-back"></i></button>
+                <button class="play-btn" id="play" aria-label="Play/Pause"><i class="ph-fill ph-play" id="play-icon"></i></button>
+                <button class="icon-btn" id="next" aria-label="Next"><i class="ph-fill ph-skip-forward"></i></button>
+                <button class="icon-btn" aria-label="Repeat"><i class="ph ph-repeat"></i></button>
             </div>
-            <div class="progress-container" id="progress-container">
-                <div class="progress-bar" id="progress-bar">
-                    <div class="progress-thumb"></div>
+            <div class="progress-section">
+                <span id="current-time" class="time-text">0:00</span>
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                        <div class="progress-thumb" id="progress-thumb"></div>
+                    </div>
                 </div>
+                <span id="duration" class="time-text">0:30</span>
             </div>
         </div>
 
-        <!-- Controls -->
-        <div class="controls">
-            <button class="icon-btn control-btn" id="prev" aria-label="Previous Track">
-                <i class="ph-fill ph-skip-back"></i>
-            </button>
-            <button class="icon-btn play-btn" id="play" aria-label="Play or Pause">
-                <i class="ph-fill ph-play" id="play-icon"></i>
-            </button>
-            <button class="icon-btn control-btn" id="next" aria-label="Next Track">
-                <i class="ph-fill ph-skip-forward"></i>
-            </button>
-        </div>
-
-        <!-- Volume -->
-        <div class="volume-section">
-            <i class="ph ph-speaker-low" id="volume-icon"></i>
-            <div class="volume-container">
+        <!-- Right: Volume -->
+        <div class="player-right">
+            <i class="ph ph-speaker-high volume-icon"></i>
+            <div class="volume-container" id="volume-container">
                 <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
                 <div class="volume-progress" id="volume-progress"></div>
             </div>
-            <i class="ph ph-speaker-high"></i>
         </div>
-    </main>
+    </footer>
 
     <script src="script.js"></script>
 </body>
