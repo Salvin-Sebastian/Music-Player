@@ -40,6 +40,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 24px 12px;
+    transition: width 0.3s;
 }
 
 .logo {
@@ -97,6 +98,7 @@ body {
     flex-direction: column;
     overflow-y: auto;
     position: relative;
+    min-width: 0; /* Fix flex blowout */
 }
 
 /* Scrollbar styling */
@@ -125,6 +127,7 @@ body {
     position: relative;
     display: flex;
     align-items: center;
+    max-width: 100%;
 }
 
 .search-icon {
@@ -136,6 +139,7 @@ body {
 
 #search-input {
     width: 350px;
+    max-width: 100%;
     padding: 12px 12px 12px 40px;
     border-radius: 24px;
     border: none;
@@ -153,6 +157,7 @@ body {
 
 .content-area {
     padding: 24px;
+    min-width: 0;
 }
 
 #results-title {
@@ -164,7 +169,7 @@ body {
 /* --- Track List --- */
 .track-list-header {
     display: grid;
-    grid-template-columns: 50px 2fr 1fr 50px;
+    grid-template-columns: 50px minmax(0, 2fr) minmax(0, 1fr) 50px;
     padding: 10px 16px;
     color: var(--spotify-light-gray);
     font-size: 12px;
@@ -182,7 +187,7 @@ body {
 
 .track-item {
     display: grid;
-    grid-template-columns: 50px 2fr 1fr 50px;
+    grid-template-columns: 50px minmax(0, 2fr) minmax(0, 1fr) 50px;
     align-items: center;
     padding: 8px 16px;
     border-radius: 4px;
@@ -207,6 +212,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0; /* Fix grid blowout */
 }
 
 .track-info-col img {
@@ -214,6 +220,13 @@ body {
     height: 40px;
     border-radius: 4px;
     object-fit: cover;
+    flex-shrink: 0;
+}
+
+.track-details {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .track-details .track-name {
@@ -221,6 +234,9 @@ body {
     font-weight: 500;
     margin-bottom: 4px;
     color: var(--spotify-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .track-item.playing .track-details .track-name {
@@ -230,6 +246,9 @@ body {
 .track-details .track-artist {
     font-size: 14px;
     color: var(--spotify-light-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .track-album {
@@ -254,6 +273,17 @@ body {
     font-size: 16px;
 }
 
+.error-btn {
+    margin-top: 16px;
+    padding: 10px 24px;
+    background-color: var(--spotify-green);
+    color: var(--spotify-black);
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 /* --- Bottom Player --- */
 .bottom-player {
     height: 90px;
@@ -268,10 +298,11 @@ body {
 
 .player-left {
     width: 30%;
-    min-width: 180px;
+    min-width: 150px;
     display: flex;
     align-items: center;
     gap: 14px;
+    min-width: 0; /* Fix flex blowout */
 }
 
 #player-art {
@@ -279,10 +310,15 @@ body {
     height: 56px;
     border-radius: 4px;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
 #player-art.hidden {
     display: none;
+}
+
+.player-track-info {
+    min-width: 0;
 }
 
 .player-title {
@@ -290,11 +326,17 @@ body {
     font-weight: 500;
     color: var(--spotify-white);
     margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .player-artist {
     font-size: 12px;
     color: var(--spotify-light-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .player-center {
@@ -337,6 +379,7 @@ body {
     align-items: center;
     cursor: pointer;
     transition: transform 0.1s;
+    flex-shrink: 0;
 }
 
 .play-btn:hover {
@@ -383,7 +426,6 @@ body {
     overflow: hidden;
 }
 
-/* Use a pseudo-element or separate div for the fill so hover effect works */
 .progress-fill {
     background-color: var(--spotify-white);
     height: 100%;
@@ -416,7 +458,7 @@ body {
 
 .player-right {
     width: 30%;
-    min-width: 180px;
+    min-width: 120px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -480,19 +522,6 @@ body {
     background: var(--spotify-green);
 }
 
-/* Background track for volume */
-.volume-bg {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
-    z-index: 0;
-}
-
 /* --- Live Radio Indicator --- */
 .live-indicator {
     display: flex;
@@ -520,4 +549,66 @@ body {
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 71, 87, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+}
+
+/* --- Media Queries for Responsive Layout --- */
+@media (max-width: 900px) {
+    .player-left {
+        width: 40%;
+    }
+    .player-right {
+        display: none; /* Hide volume controls on small screens */
+    }
+    .player-center {
+        width: 60%;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+        padding: 24px 8px;
+        align-items: center;
+    }
+    .logo span, .nav-item span {
+        display: none; /* Hide text, show only icons */
+    }
+    .nav-item {
+        justify-content: center;
+        padding: 12px;
+    }
+    #search-input {
+        width: 200px;
+    }
+    .track-list-header {
+        grid-template-columns: 50px minmax(0, 1fr) 50px;
+    }
+    .col-album, .track-album {
+        display: none; /* Hide album column on mobile */
+    }
+    .track-item {
+        grid-template-columns: 50px minmax(0, 1fr) 50px;
+    }
+}
+
+@media (max-width: 500px) {
+    .sidebar {
+        display: none; /* Entirely hide sidebar on very small screens, use a bottom bar or menu in a real app, but this is fine for now */
+    }
+    .main-view {
+        margin: 0;
+        border-radius: 0;
+    }
+    #search-input {
+        width: 150px;
+    }
+    .player-left {
+        width: 60%;
+    }
+    .player-center {
+        width: 40%;
+    }
+    .progress-section {
+        display: none !important; /* Hide progress bar on tiny mobile screens to save space */
+    }
 }

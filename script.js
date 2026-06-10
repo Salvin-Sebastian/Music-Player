@@ -95,7 +95,14 @@ async function searchiTunes(query) {
         renderQueue();
     } catch (error) {
         console.error('Error fetching from iTunes:', error);
-        tracksContainer.innerHTML = '<div class="loading-state">Error loading tracks. Please try again.</div>';
+        tracksContainer.innerHTML = `
+            <div class="loading-state">
+                <i class="ph ph-warning-circle" style="font-size: 48px; color: #ff4757; margin-bottom: 16px;"></i><br>
+                <strong>Network Error!</strong><br>
+                Unable to connect to the iTunes API. Please check your internet connection or ad-blocker.<br>
+                <button class="error-btn" onclick="searchiTunes('${query.replace(/'/g, "\\'")}')">Retry</button>
+            </div>
+        `;
     }
 }
 
@@ -128,7 +135,14 @@ async function fetchRadioStations() {
         renderQueue();
     } catch (error) {
         console.error('Error fetching Radio Stations:', error);
-        tracksContainer.innerHTML = '<div class="loading-state">Error loading radio. Please try again.</div>';
+        tracksContainer.innerHTML = `
+            <div class="loading-state">
+                <i class="ph ph-warning-circle" style="font-size: 48px; color: #ff4757; margin-bottom: 16px;"></i><br>
+                <strong>Network Error!</strong><br>
+                Unable to connect to the Radio API. Please try again.<br>
+                <button class="error-btn" onclick="fetchRadioStations()">Retry</button>
+            </div>
+        `;
     }
 }
 
@@ -220,6 +234,9 @@ function playTrack() {
         // Fallback for CORS or stream errors on radio
         if (currentQueue[currentIndex]?.isLive) {
             alert("This radio stream is currently offline or blocking playback.");
+            pauseTrack();
+        } else {
+            alert("Audio playback failed. The preview stream might be restricted or your browser is blocking autoplay. Try interacting with the page first.");
             pauseTrack();
         }
     });
