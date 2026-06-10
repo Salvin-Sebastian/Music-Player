@@ -4,8 +4,10 @@ const tracksContainer = document.getElementById('tracks-container');
 const resultsTitle = document.getElementById('results-title');
 
 // Navigation Elements
+const navHome = document.getElementById('nav-home');
 const navSearch = document.getElementById('nav-search');
 const navRadio = document.getElementById('nav-radio');
+const searchBtn = document.getElementById('search-btn');
 
 // Player Elements
 const audio = document.getElementById('audio');
@@ -25,22 +27,46 @@ const progressFill = document.getElementById('progress-fill');
 const progressThumb = document.getElementById('progress-thumb');
 const volumeSlider = document.getElementById('volume-slider');
 const volumeProgress = document.getElementById('volume-progress');
+const playerLeft = document.querySelector('.player-left');
+
+// Full Screen Player Elements
+const fsPlayer = document.getElementById('fs-player');
+const fsCloseBtn = document.getElementById('fs-close-btn');
+const fsPlayerArt = document.getElementById('fs-player-art');
+const fsPlayerTitle = document.getElementById('fs-player-title');
+const fsPlayerArtist = document.getElementById('fs-player-artist');
+const fsCurrentTime = document.getElementById('fs-current-time');
+const fsDuration = document.getElementById('fs-duration');
+const fsProgressFill = document.getElementById('fs-progress-fill');
+const fsProgressThumb = document.getElementById('fs-progress-thumb');
+const fsProgressContainer = document.getElementById('fs-progress-container');
+const fsPlayBtn = document.getElementById('fs-play');
+const fsPlayIcon = document.getElementById('fs-play-icon');
+const fsNextBtn = document.getElementById('fs-next');
+const fsPrevBtn = document.getElementById('fs-prev');
 
 // --- State ---
 let currentQueue = [];
 let currentIndex = -1;
 let isPlaying = false;
-let currentMode = 'search'; // 'search' or 'radio'
+let currentMode = 'home'; // 'home', 'search' or 'radio'
 
 // --- Initialize ---
 function init() {
     setupNavigation();
-    searchiTunes('Top Hits');
+    setMode('home');
+    loadHomeView();
     updateVolume();
 }
 
 // --- Navigation ---
 function setupNavigation() {
+    navHome.addEventListener('click', (e) => {
+        e.preventDefault();
+        setMode('home');
+        loadHomeView();
+    });
+
     navSearch.addEventListener('click', (e) => {
         e.preventDefault();
         setMode('search');
@@ -52,19 +78,66 @@ function setupNavigation() {
         setMode('radio');
         fetchRadioStations();
     });
+
+    searchBtn.addEventListener('click', () => {
+        if (currentMode === 'search') {
+            searchiTunes(searchInput.value);
+        } else {
+            setMode('search');
+            searchiTunes(searchInput.value || 'Top Hits');
+        }
+    });
 }
 
 function setMode(mode) {
     currentMode = mode;
+    navSearch.classList.remove('active');
+    navRadio.classList.remove('active');
+    navHome.classList.remove('active');
+    
     if (mode === 'search') {
         navSearch.classList.add('active');
-        navRadio.classList.remove('active');
         searchInput.style.display = 'block';
-    } else {
-        navSearch.classList.remove('active');
+    } else if (mode === 'radio') {
         navRadio.classList.add('active');
         searchInput.style.display = 'none'; // Hide search bar for radio view
+    } else if (mode === 'home') {
+        navHome.classList.add('active');
+        searchInput.style.display = 'none';
     }
+}
+
+function loadHomeView() {
+    resultsTitle.innerText = "Welcome to Lottafiy";
+    tracksContainer.innerHTML = `
+        <div class="loading-state" style="padding-top: 60px;">
+            <i class="ph-fill ph-music-notes" style="font-size: 64px; color: var(--spotify-green); margin-bottom: 20px;"></i>
+            <h2 style="color: white; margin-bottom: 12px;">Let's test your audio!</h2>
+            <p style="margin-bottom: 24px; color: var(--spotify-light-gray);">Click the button below to load a sample high-quality track and test if the audio player is working perfectly.</p>
+            <button class="error-btn" id="play-sample-btn" style="padding: 14px 32px; font-size: 16px;">
+                <i class="ph-fill ph-play" style="margin-right: 8px;"></i> Play Sample Track
+            </button>
+        </div>
+    `;
+
+    document.getElementById('play-sample-btn').addEventListener('click', () => {
+        currentQueue = [{
+            id: 'sample',
+            title: 'Lofi Study Beat',
+            artist: 'Lottafiy Samples',
+            album: 'Royalty Free',
+            duration: null, // Let the audio element calculate it
+            streamUrl: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3',
+            coverUrl: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600',
+            thumbnailUrl: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=100',
+            isLive: false
+        }];
+        currentIndex = 0;
+        loadTrack(currentIndex);
+        playTrack();
+        // Automatically open the full screen player to show it off
+        fsPlayer.classList.remove('hidden');
+    });
 }
 
 // --- API: iTunes Search ---
@@ -196,26 +269,38 @@ function loadTrack(index) {
 
     audio.src = track.streamUrl;
     playerArt.src = track.coverUrl;
+    fsPlayerArt.src = track.coverUrl;
+    
     // Set fallback if favicon fails
     playerArt.onerror = () => {
         playerArt.src = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600';
+        fsPlayerArt.src = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600';
     };
     
     playerArt.classList.remove('hidden');
+    playerLeft.style.cursor = 'pointer'; // Make it clickable
+    
     playerTitle.innerText = track.title;
     playerArtist.innerText = track.artist;
+    fsPlayerTitle.innerText = track.title;
+    fsPlayerArtist.innerText = track.artist;
 
     // Toggle UI for Live Radio vs Normal Track
+    const fsProgressSection = document.getElementById('fs-progress-section');
     if (track.isLive) {
         progressSection.classList.add('hidden');
         progressSection.style.display = 'none';
+        fsProgressSection.style.display = 'none';
         liveIndicator.classList.remove('hidden');
     } else {
         progressSection.classList.remove('hidden');
         progressSection.style.display = 'flex';
+        fsProgressSection.style.display = 'block';
         liveIndicator.classList.add('hidden');
         progressFill.style.width = '0%';
         progressThumb.style.left = '0%';
+        fsProgressFill.style.width = '0%';
+        fsProgressThumb.style.left = '0%';
     }
 
     // Highlight active track in list
@@ -230,6 +315,7 @@ function playTrack() {
     if (currentIndex === -1) return;
     isPlaying = true;
     playIcon.classList.replace('ph-play', 'ph-pause');
+    fsPlayIcon.classList.replace('ph-play', 'ph-pause');
     audio.play().catch(e => {
         console.error("Audio playback error:", e);
         // Fallback for CORS or stream errors on radio
@@ -246,6 +332,7 @@ function playTrack() {
 function pauseTrack() {
     isPlaying = false;
     playIcon.classList.replace('ph-pause', 'ph-play');
+    fsPlayIcon.classList.replace('ph-pause', 'ph-play');
     audio.pause();
 }
 
@@ -284,15 +371,23 @@ function updateProgress(e) {
 
     const { duration, currentTime } = e.srcElement;
     
-    const dur = isNaN(duration) ? 30 : duration; 
+    // For local sample track, duration might be calculable natively
+    const dur = isNaN(duration) ? (track.duration || 30) : duration; 
     
     const progressPercent = (currentTime / dur) * 100;
     progressFill.style.width = `${progressPercent}%`;
     progressThumb.style.left = `${progressPercent}%`;
+    fsProgressFill.style.width = `${progressPercent}%`;
+    fsProgressThumb.style.left = `${progressPercent}%`;
 
-    currentTimeEl.innerText = formatTime(currentTime);
-    if (!isNaN(duration)) {
-        durationEl.innerText = formatTime(duration);
+    const formattedCurrent = formatTime(currentTime);
+    currentTimeEl.innerText = formattedCurrent;
+    fsCurrentTime.innerText = formattedCurrent;
+    
+    if (!isNaN(dur) && isFinite(dur)) {
+        const formattedDur = formatTime(dur);
+        durationEl.innerText = formattedDur;
+        fsDuration.innerText = formattedDur;
     }
 }
 
@@ -302,10 +397,12 @@ function setProgress(e) {
 
     const width = this.clientWidth;
     const clickX = e.offsetX;
-    const duration = audio.duration;
+    
+    // Use either the audio element's duration or the fallback 30s
+    const dur = isNaN(audio.duration) ? (track.duration || 30) : audio.duration;
 
-    if (!isNaN(duration)) {
-        audio.currentTime = (clickX / width) * duration;
+    if (!isNaN(dur) && isFinite(dur)) {
+        audio.currentTime = (clickX / width) * dur;
     }
 }
 
@@ -328,13 +425,33 @@ searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         if (currentMode === 'search') {
             searchiTunes(searchInput.value);
+        } else {
+            setMode('search');
+            searchiTunes(searchInput.value);
         }
     }
 });
 
+// Full Screen Player Toggles
+playerLeft.addEventListener('click', () => {
+    if (currentIndex !== -1) {
+        fsPlayer.classList.remove('hidden');
+    }
+});
+fsCloseBtn.addEventListener('click', () => {
+    fsPlayer.classList.add('hidden');
+});
+
+// Bottom Player Controls
 playBtn.addEventListener('click', togglePlay);
 nextBtn.addEventListener('click', nextTrack);
 prevBtn.addEventListener('click', prevTrack);
+
+// Full Screen Controls
+fsPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+fsNextBtn.addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); });
+fsPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); prevTrack(); });
+
 audio.addEventListener('timeupdate', updateProgress);
 audio.addEventListener('ended', () => {
     // Only auto-next if it's not live radio
@@ -344,6 +461,7 @@ audio.addEventListener('ended', () => {
     }
 });
 progressContainer.addEventListener('click', setProgress);
+fsProgressContainer.addEventListener('click', setProgress);
 volumeSlider.addEventListener('input', updateVolume);
 
 // Handle spacebar play/pause

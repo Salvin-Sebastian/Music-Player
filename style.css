@@ -612,3 +612,111 @@ body {
         display: none !important; /* Hide progress bar on tiny mobile screens to save space */
     }
 }
+
+/* --- Full Screen Player --- */
+.fs-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, #444, var(--spotify-black));
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.fs-player.hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.fs-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--spotify-white);
+}
+
+.fs-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.fs-art {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-bottom: 40px;
+}
+
+.fs-info {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.fs-track-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--spotify-white);
+    margin-bottom: 8px;
+}
+
+.fs-track-artist {
+    font-size: 16px;
+    color: var(--spotify-light-gray);
+}
+
+.fs-progress-section {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.fs-progress-container {
+    height: 16px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.fs-time-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.fs-controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fs-play-btn {
+    width: 64px;
+    height: 64px;
+}
+
+.fs-play-btn i {
+    font-size: 28px;
+}

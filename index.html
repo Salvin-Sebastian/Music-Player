@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottafiy Clone</title>
+    <title>Lottafiy</title>
     <meta name="description" content="A Lottafiy clone using the iTunes Search API">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Circular+Std:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Circular+Std:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -22,7 +26,7 @@
                 <span>Lottafiy</span>
             </div>
             <nav class="nav-links">
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" id="nav-home">
                     <i class="ph-fill ph-house"></i>
                     <span>Home</span>
                 </a>
@@ -46,7 +50,7 @@
             <!-- Topbar -->
             <header class="topbar">
                 <div class="search-container">
-                    <i class="ph ph-magnifying-glass search-icon"></i>
+                    <i class="ph ph-magnifying-glass search-icon" id="search-btn" style="cursor: pointer;"></i>
                     <input type="text" id="search-input" placeholder="What do you want to listen to?" value="Top Hits">
                 </div>
                 <div class="user-profile">
@@ -57,7 +61,7 @@
             <!-- Content Area -->
             <div class="content-area">
                 <h2 id="results-title">Search Results</h2>
-                
+
                 <!-- Track List Header -->
                 <div class="track-list-header">
                     <div class="col-title"># Title</div>
@@ -93,7 +97,8 @@
             <div class="player-controls">
                 <button class="icon-btn" aria-label="Shuffle"><i class="ph ph-shuffle"></i></button>
                 <button class="icon-btn" id="prev" aria-label="Previous"><i class="ph-fill ph-skip-back"></i></button>
-                <button class="play-btn" id="play" aria-label="Play/Pause"><i class="ph-fill ph-play" id="play-icon"></i></button>
+                <button class="play-btn" id="play" aria-label="Play/Pause"><i class="ph-fill ph-play"
+                        id="play-icon"></i></button>
                 <button class="icon-btn" id="next" aria-label="Next"><i class="ph-fill ph-skip-forward"></i></button>
                 <button class="icon-btn" aria-label="Repeat"><i class="ph ph-repeat"></i></button>
             </div>
@@ -122,6 +127,44 @@
         </div>
     </footer>
 
-    <script src="script.js?v=2"></script>
+    <!-- Full Screen Player Overlay -->
+    <div class="fs-player hidden" id="fs-player">
+        <div class="fs-header">
+            <button class="icon-btn" id="fs-close-btn" aria-label="Close"><i class="ph ph-caret-down"></i></button>
+            <div class="fs-title">Now Playing</div>
+            <button class="icon-btn" aria-label="Menu"><i class="ph ph-dots-three"></i></button>
+        </div>
+        <div class="fs-content">
+            <img src="" alt="Album Art" id="fs-player-art" class="fs-art">
+            <div class="fs-info">
+                <div id="fs-player-title" class="fs-track-title"></div>
+                <div id="fs-player-artist" class="fs-track-artist"></div>
+            </div>
+            
+            <div class="fs-progress-section" id="fs-progress-section">
+                <div class="fs-progress-container" id="fs-progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="fs-progress-fill"></div>
+                        <div class="progress-thumb" id="fs-progress-thumb"></div>
+                    </div>
+                </div>
+                <div class="fs-time-row">
+                    <span id="fs-current-time" class="time-text">0:00</span>
+                    <span id="fs-duration" class="time-text">0:30</span>
+                </div>
+            </div>
+
+            <div class="fs-controls">
+                <button class="icon-btn" aria-label="Shuffle"><i class="ph ph-shuffle"></i></button>
+                <button class="icon-btn" id="fs-prev" aria-label="Previous"><i class="ph-fill ph-skip-back"></i></button>
+                <button class="play-btn fs-play-btn" id="fs-play" aria-label="Play/Pause"><i class="ph-fill ph-play" id="fs-play-icon"></i></button>
+                <button class="icon-btn" id="fs-next" aria-label="Next"><i class="ph-fill ph-skip-forward"></i></button>
+                <button class="icon-btn" aria-label="Repeat"><i class="ph ph-repeat"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=3"></script>
 </body>
+
 </html>
