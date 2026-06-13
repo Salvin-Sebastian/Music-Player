@@ -107,36 +107,75 @@ function setMode(mode) {
     }
 }
 
-function loadHomeView() {
-    resultsTitle.innerText = "Welcome to Lottafiy";
-    tracksContainer.innerHTML = `
-        <div class="loading-state" style="padding-top: 60px;">
-            <i class="ph-fill ph-music-notes" style="font-size: 64px; color: var(--spotify-green); margin-bottom: 20px;"></i>
-            <h2 style="color: white; margin-bottom: 12px;">Let's test your audio!</h2>
-            <p style="margin-bottom: 24px; color: var(--spotify-light-gray);">Click the button below to load a sample high-quality track and test if the audio player is working perfectly.</p>
-            <button class="error-btn" id="play-sample-btn" style="padding: 14px 32px; font-size: 16px;">
-                <i class="ph-fill ph-play" style="margin-right: 8px;"></i> Play Sample Track
-            </button>
-        </div>
-    `;
+async function loadHomeView() {
+    resultsTitle.innerText = "Good evening";
+    tracksContainer.innerHTML = '<div class="loading-state">Loading featured tracks...</div>';
+    
+    const listHeader = document.querySelector('.track-list-header');
+    if (listHeader) listHeader.style.display = 'none';
 
-    document.getElementById('play-sample-btn').addEventListener('click', () => {
-        currentQueue = [{
-            id: 'sample',
-            title: 'Lofi Study Beat',
-            artist: 'Lottafiy Samples',
-            album: 'Royalty Free',
-            duration: null, // Let the audio element calculate it
-            streamUrl: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3',
-            coverUrl: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600',
-            thumbnailUrl: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=100',
-            isLive: false
-        }];
-        currentIndex = 0;
-        loadTrack(currentIndex);
-        playTrack();
-        // Automatically open the full screen player to show it off
-        fsPlayer.classList.remove('hidden');
+    try {
+        const response = await fetch('https://itunes.apple.com/search?term=top+hits&entity=song&limit=12');
+        const data = await response.json();
+        
+        currentQueue = data.results
+            .filter(track => track.previewUrl)
+            .map(track => ({
+                id: track.trackId,
+                title: track.trackName,
+                artist: track.artistName,
+                album: track.collectionName || 'Single',
+                duration: track.trackTimeMillis / 1000,
+                streamUrl: track.previewUrl,
+                coverUrl: track.artworkUrl100 ? track.artworkUrl100.replace('100x100bb', '600x600bb') : '',
+                thumbnailUrl: track.artworkUrl100 ? track.artworkUrl100.replace('100x100bb', '300x300bb') : '',
+                isLive: false
+            }));
+            
+        renderCards();
+    } catch (error) {
+        console.error('Home load error:', error);
+        tracksContainer.innerHTML = `
+            <div class="loading-state">
+                <i class="ph ph-warning-circle" style="font-size: 48px; color: #ff4757; margin-bottom: 16px;"></i><br>
+                <strong>Failed to load Home</strong>
+            </div>
+        `;
+    }
+}
+
+function renderCards() {
+    tracksContainer.innerHTML = '<div class="cards-grid"></div>';
+    const grid = tracksContainer.querySelector('.cards-grid');
+    
+    if (currentQueue.length === 0) {
+        grid.innerHTML = '<div class="loading-state">No items found.</div>';
+        return;
+    }
+
+    currentQueue.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.dataset.index = index;
+        
+        card.innerHTML = `
+            <div class="card-image-wrapper">
+                <img class="card-image" src="${item.coverUrl}" alt="Cover" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600'">
+                <div class="card-play-btn">
+                    <i class="ph-fill ph-play" style="margin-left: 2px;"></i>
+                </div>
+            </div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-subtitle">${item.artist}</div>
+        `;
+
+        card.addEventListener('click', () => {
+            currentIndex = index;
+            loadTrack(currentIndex);
+            playTrack();
+        });
+
+        grid.appendChild(card);
     });
 }
 
@@ -222,6 +261,8 @@ async function fetchRadioStations() {
 
 // --- Render Queue ---
 function renderQueue() {
+    const listHeader = document.querySelector('.track-list-header');
+    if (listHeader) listHeader.style.display = '';
     tracksContainer.innerHTML = '';
     
     if (currentQueue.length === 0) {
